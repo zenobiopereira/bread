@@ -1,134 +1,97 @@
 // ==UserScript==
 // @name        Bread
 // @match       *://*/*
-// @version     1.0.5
-// @author      Toby
+// @version     2.3.0
+// @author      Toby (v1.0.5), ltGuillaume
 // @license     MIT
 // @description Bread (Bionic Reading) - Read text faster & easier
-// @require     https://openuserjs.org/src/libs/sizzle/GM_config.js
-// @grant       GM_registerMenuCommand
+// @grant       GM_addStyle
+// @grant       GM_getValue
+// @grant       GM_setValue
+// @run-at      document-start
 // ==/UserScript==
 
+/* source: https://github.com/tobyxdd/bread (v1.0.5) */
 /* jshint esversion: 6 */
 
-GM_config.init(
-    {
-        'id': 'BreadConfig',
-        'title': 'Bread Configuration',
-        'fields':
-        {
-            'MinWordLength':
-            {
-                'label': 'Minimum word length',
-                'type': 'int',
-                'min': 1,
-                'max': 20,
-                'default': 4,
-            },
-            'MinTextLength':
-            {
-                'label': 'Minimum text length',
-                'type': 'int',
-                'min': 1,
-                'max': 500,
-                'default': 50,
-            },
-            'BoldRatio':
-            {
-                'label': 'Bold ratio',
-                'type': 'float',
-                'min': 0.1,
-                'max': 1,
-                'default': 0.4,
-            },
-            'ProcessDyn':
-            {
-                'label': 'Process dynamically loaded content (may cause performance issues)',
-                'type': 'checkbox',
-                'default': true,
-            },
-        }
-    });
-
-if (typeof GM_registerMenuCommand !== "undefined") {
-    GM_registerMenuCommand('Configuration', function () {
-        GM_config.open();
-    });
-}
-document.addEventListener('keydown', function (event) {
-    if (event.ctrlKey && event.key === 'b') {
-        GM_config.open();
-    }
-});
-
-var minWordLength = GM_config.get('MinWordLength');
-var minTextLength = GM_config.get('MinTextLength');
-var boldRatio = GM_config.get('BoldRatio');
-var processDyn = GM_config.get('ProcessDyn');
+let minWordLength = GM_getValue('MinWordLength') || 4;	// Minimum word length
+let minTextLength = GM_getValue('MinTextLength') || 20;	// Minimum text length
+let boldRatio     = GM_getValue('BoldRatio')	   || 0.4;	// Bold ratio (percentage of letters per word)
+let processDyn    = GM_getValue('ProcessDyn')	   || true;	// Process dynamically loaded content (may cause performance issues)
 
 function insertTextBefore(text, node, bold) {
-    if (bold) {
-        var span = document.createElement("span");
-        span.style.fontWeight = "bolder";
-        span.appendChild(document.createTextNode(text));
+	if (bold) {
+		let span = document.createElement('span');
+		span.className = 'bread';
+		span.appendChild(document.createTextNode(text));
 
-        node.parentNode.insertBefore(span, node);
-    }
-    else {
-        node.parentNode.insertBefore(document.createTextNode(text), node);
-    }
+		node.parentNode.insertBefore(span, node);
+	} else {
+		node.parentNode.insertBefore(document.createTextNode(text), node);
+	}
 }
 
-function processNode(node) {
-    var walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, {
-        acceptNode: function (node) {
-            return (
-                node.parentNode.nodeName !== 'SCRIPT' &&
-                node.parentNode.nodeName !== 'NOSCRIPT' &&
-                node.parentNode.nodeName !== 'STYLE' &&
-                node.parentNode.nodeName !== 'TITLE' &&
-                node.nodeValue.length >= minTextLength) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-        }
-    });
+function processNode(base) {
+	let walker = document.createTreeWalker(base, NodeFilter.SHOW_TEXT, {
+		acceptNode: function (node) {
+			return (
+				node.parentNode.nodeName !== 'INPUT' &&
+				node.parentNode.nodeName !== 'NOSCRIPT' &&
+				node.parentNode.nodeName !== 'SCRIPT' &&
+				node.parentNode.nodeName !== 'STYLE' &&
+				node.parentNode.nodeName !== 'TEXTAREA' &&
+				node.parentNode.nodeName !== 'TITLE' &&
+			 (node.parentNode.nodeName === 'A' ||
+				node.parentNode.nodeName === 'EM' ||
+				node.parentNode.nodeName === 'STRONG' ||
+				node.nodeValue.length	 >= minTextLength)) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+		}
+	});
 
-    var node;
-    while (node = walker.nextNode()) {
-        var text = node.nodeValue;
-        var wStart = -1, wLen = 0, eng = null;
+	let node;
+	while (node = walker.nextNode()) {
+		let text = node.nodeValue;
+		let wStart = -1, wLen = 0, eng = null;
 
-        for (var i = 0; i <= text.length; i++) { // We use <= here because we want to include the last character in the loop
-            var cEng = i < text.length ? /[\p{Letter}\p{Mark}]/u.test(text[i]) : false;
+		for (let i = 0; i <= text.length; i++) {	// We use <= here because we want to include the last character in the loop
+			let cEng = i < text.length ? /[\p{Letter}\p{Mark}]/u.test(text[i]) : false;
 
-            if (i == text.length || eng !== cEng) {
-                // State flipped or end of string
-                if (eng && wLen >= minWordLength) {
-                    var word = text.substring(wStart, wStart + wLen);
-                    var numBold = Math.ceil(word.length * boldRatio);
-                    var bt = word.substring(0, numBold), nt = word.substring(numBold);
-                    insertTextBefore(bt, node, true);
-                    insertTextBefore(nt, node, false);
-                } else if (wLen > 0) {
-                    var word = text.substring(wStart, wStart + wLen);
-                    insertTextBefore(word, node, false);
-                }
-                wStart = i;
-                wLen = 1;
-                eng = cEng;
-            } else {
-                wLen++;
-            }
-        }
+			if (i == text.length || eng !== cEng) {
+				// State flipped or end of string
+				if (eng && wLen >= minWordLength) {
+					let word = text.substring(wStart, wStart + wLen);
+					let numBold = Math.ceil(word.length * boldRatio);
+					let bt = word.substring(0, numBold), nt = word.substring(numBold);
+					insertTextBefore(bt, node, true);
+					insertTextBefore(nt, node, false);
+				} else if (wLen > 0) {
+					let word = text.substring(wStart, wStart + wLen);
+					insertTextBefore(word, node, false);
+				}
+				wStart = i;
+				wLen = 1;
+				eng = cEng;
+			} else {
+				wLen++;
+			}
+		}
 
-        node.nodeValue = ""; // Can't remove the node (otherwise the tree walker will break) so just set it to empty
-    }
+		node.nodeValue = '';	// Can't remove the node (otherwise the tree walker will break) so just set it to empty
+	}
 }
 
-window.addEventListener("load", function (event) {
-    processNode(event.target);
+window.addEventListener('load', function (event) {
+	processNode(event.target);
+	if (processDyn) {
+		document.body.addEventListener('DOMNodeInserted', function (event) {
+			processNode(event.target);
+		}, false);
+	}
 }, false);
 
-if (processDyn) {
-    document.body.addEventListener('DOMNodeInserted', function (event) {
-        processNode(event.target);
-    }, false);
-}
+GM_addStyle(`
+	span.bread {
+		display: contents !important;
+		font-weight: bolder;
+	}
+`);
