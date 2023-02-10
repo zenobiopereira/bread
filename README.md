@@ -1,20 +1,24 @@
-# Bread - an open-source Bionic Reading userscript implementation
+# Bread
+by tobyxdd, modified by ltGuillaume: [Codeberg](https://codeberg.org/ltGuillaume) | [GitHub](https://github.com/ltGuillaume) | [Buy me a beer](https://buymeacoff.ee/ltGuillaume) 🍺
 
-![Demo](demo.png)
+An open-source [Bionic reading](https://bionic-reading.com) userscript implementation.
 
-Configurable options:
+![Screenshot](SCREENSHOT.png)
 
-- Minimum word length - the minimum length of a word to be "bionified"
-- Minimum text length - the minimum length of a paragraph to be "bionified"
-- Bold ratio - the percentage of letters in each word that will be bolded
-- Process dynamically loaded content - whether to process dynamically loaded content (may cause performance issues)
+## Getting started
+1. Install a userscript manager in your browser (this script has been tested with [ViolentMonkey](https://violentmonkey.github.io/get-it/))
+2. Open [bread.user.js](bread.user.js?raw=1) and confirm installation
 
-Use the "Configuration" menu option (or Ctrl+B if your script manager doesn't support menu) to open the configuration dialog.
+### Configurable values
+Key | Value | Description
+-- | -- | --
+`minWordLength` | `4` |Minimum length of a word to be "bionified"
+`minTextLength` | `20` | Minimum length of a paragraph to be "bionified"
+`boldRatio` | `.4` | Percentage of letters in each word that will be bolded
+`processDyn` | `True` | Whether to process dynamically loaded content
 
-Tested on [Tampermonkey](https://www.tampermonkey.net/) and [Violentmonkey](https://violentmonkey.github.io/).
+You can change these values in your userscript manager.
 
-[**Get it on OpenUserJS**](https://openuserjs.org/scripts/tobyxdd/Bread)
-
-For more info, check out https://bionic-reading.com/.
-
-This script is tested to work with most websites in alphabetic languages (English, German, Russian, etc.). If you run into any problems, please report by creating an issue.
+## Credits
+- Renato Casutt for the [Bionic Reading](https://bionic-reading.com) method
+- [tobyxdd](https://github.com/tobyxdd) for his implementation of Bionic Reading ([get it on OpenUserJS](https://openuserjs.org/scripts/tobyxdd/Bread))
