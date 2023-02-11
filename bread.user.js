@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Bread
 // @match       *://*/*
-// @version     2.3.0
+// @version     2.5.0
 // @author      Toby (v1.0.5), ltGuillaume
 // @license     MIT
 // @description Bread (Bionic Reading) - Read text faster & easier
@@ -13,14 +13,14 @@
 /* source: https://github.com/tobyxdd/bread (v1.0.5) */
 /* jshint esversion: 6 */
 
-let minWordLength = GM_getValue('MinWordLength') || 4;    // Minimum word length
-let minTextLength = GM_getValue('MinTextLength') || 20;   // Minimum text length
-let boldRatio     = GM_getValue('BoldRatio')	   || 0.4;  // Bold ratio (percentage of letters per word)
-let processDyn    = GM_getValue('ProcessDyn')	   || true; // Process dynamically loaded content (may cause performance issues)
-let breadNodes    = GM_getValue('BreadNodes')    || {};   // Restrict bread to a specific node per domain (use a CSS query): {"domain": "#css_selector", ...}
-let breadNode     = false;
+let
+minWordLength = GM_getValue('MinWordLength') || 4,    // Minimum word length
+minTextLength = GM_getValue('MinTextLength') || 20,   // Minimum text length
+boldRatio     = GM_getValue('BoldRatio')	   || 0.4,  // Bold ratio (percentage of letters per word)
+processDyn    = GM_getValue('ProcessDyn')	   || true, // Process dynamically loaded content (may cause performance issues)
+breadNodes    = GM_getValue('BreadNodes')    || {},   // Restrict bread to a specific node per domain (use a CSS query): {"domain": "#css_selector", ...}
 
-function insertTextBefore(text, node, bold) {
+insertTextBefore = (text, node, bold) => {
 	if (bold) {
 		let span = document.createElement('span');
 		span.className = 'bread';
@@ -30,10 +30,9 @@ function insertTextBefore(text, node, bold) {
 	} else {
 		node.parentNode.insertBefore(document.createTextNode(text), node);
 	}
-}
-
-function processNode(base) {
-	let walker = document.createTreeWalker(base, NodeFilter.SHOW_TEXT, {
+},
+processNode = root => {
+	let walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
 		acceptNode: function (node) {
 			return (
 				node.parentNode.nodeName !== 'INPUT' &&
@@ -79,27 +78,29 @@ function processNode(base) {
 
 		node.nodeValue = '';	// Can't remove the node (otherwise the tree walker will break) so just set it to empty
 	}
-}
+};
 
-window.addEventListener('load', function (event) {
+window.addEventListener('load', e => {
+	let breadNode = document.body;
 	for (domain in breadNodes) {
-		if (document.location.host.indexOf(domain) > -1) {
+		if (document.location.host.includes(domain)) {
 			breadNode = document.querySelector(breadNodes[domain]);
 			break;
 		}
 	}
-	processNode(breadNode || event.target);
 	if (processDyn) {
-		document.body.addEventListener('DOMNodeInserted', function (event) {
-			if (!breadNode || breadNode.contains(event.target))
-				processNode(event.target);
+		breadNode.addEventListener('DOMNodeInserted', e => {
+			processNode(event.target);
 		}, false);
 	}
+	processNode(breadNode);
 }, false);
 
 GM_addStyle(`
-	span.bread {
-		display: contents !important;
-		font-weight: bolder;
-	}
+
+span.bread {
+	display: contents !important;
+	font-weight: bolder;
+}
+
 `);
