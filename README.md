@@ -12,10 +12,11 @@ An open-source [Bionic reading](https://bionic-reading.com) userscript implement
 ### Configurable values
 Key | Value | Description
 -- | -- | --
-`minWordLength` | `4` |Minimum length of a word to be "bionified"
-`minTextLength` | `20` | Minimum length of a paragraph to be "bionified"
-`boldRatio` | `.4` | Percentage of letters in each word that will be bolded
-`processDyn` | `True` | Whether to process dynamically loaded content
+`MinWordLength` | `4` | Minimum length of a word to be "bionified"
+`MinTextLength` | `20` | Minimum length of a paragraph to be "bionified"
+`BoldRatio` | `.4` | Percentage of letters in each word that will be bolded
+`ProcessDyn` | `True` | Whether to process dynamically loaded content
+`BreadNodes` | `{}` | Restrict bread to a specific node per domain (use a CSS query): `{"domain": "#css_selector", ...}`
 
 You can change these values in your userscript manager.
 

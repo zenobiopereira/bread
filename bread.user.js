@@ -7,17 +7,18 @@
 // @description Bread (Bionic Reading) - Read text faster & easier
 // @grant       GM_addStyle
 // @grant       GM_getValue
-// @grant       GM_setValue
 // @run-at      document-start
 // ==/UserScript==
 
 /* source: https://github.com/tobyxdd/bread (v1.0.5) */
 /* jshint esversion: 6 */
 
-let minWordLength = GM_getValue('MinWordLength') || 4;	// Minimum word length
-let minTextLength = GM_getValue('MinTextLength') || 20;	// Minimum text length
-let boldRatio     = GM_getValue('BoldRatio')	   || 0.4;	// Bold ratio (percentage of letters per word)
-let processDyn    = GM_getValue('ProcessDyn')	   || true;	// Process dynamically loaded content (may cause performance issues)
+let minWordLength = GM_getValue('MinWordLength') || 4;    // Minimum word length
+let minTextLength = GM_getValue('MinTextLength') || 20;   // Minimum text length
+let boldRatio     = GM_getValue('BoldRatio')	   || 0.4;  // Bold ratio (percentage of letters per word)
+let processDyn    = GM_getValue('ProcessDyn')	   || true; // Process dynamically loaded content (may cause performance issues)
+let breadNodes    = GM_getValue('BreadNodes')    || {};   // Restrict bread to a specific node per domain (use a CSS query): {"domain": "#css_selector", ...}
+let breadNode     = false;
 
 function insertTextBefore(text, node, bold) {
 	if (bold) {
@@ -81,10 +82,17 @@ function processNode(base) {
 }
 
 window.addEventListener('load', function (event) {
-	processNode(event.target);
+	for (domain in breadNodes) {
+		if (document.location.host.indexOf(domain) > -1) {
+			breadNode = document.querySelector(breadNodes[domain]);
+			break;
+		}
+	}
+	processNode(breadNode || event.target);
 	if (processDyn) {
 		document.body.addEventListener('DOMNodeInserted', function (event) {
-			processNode(event.target);
+			if (!breadNode || breadNode.contains(event.target))
+				processNode(event.target);
 		}, false);
 	}
 }, false);
