@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Bread
 // @match       *://*/*
-// @version     2.5.0
+// @version     2.6.0
 // @author      Toby (v1.0.5), ltGuillaume
 // @license     MIT
 // @description Bread (Bionic Reading) - Read text faster & easier
@@ -14,11 +14,17 @@
 /* jshint esversion: 6 */
 
 let
-minWordLength = GM_getValue('MinWordLength') || 4,    // Minimum word length
-minTextLength = GM_getValue('MinTextLength') || 20,   // Minimum text length
-boldRatio     = GM_getValue('BoldRatio')	   || 0.4,  // Bold ratio (percentage of letters per word)
-processDyn    = GM_getValue('ProcessDyn')	   || true, // Process dynamically loaded content (may cause performance issues)
-breadNodes    = GM_getValue('BreadNodes')    || {},   // Restrict bread to a specific node per domain (use a CSS query): {"domain": "#css_selector", ...}
+minWordLength = GM_getValue('minWordLength') || 4,    // Minimum word length
+minTextLength = GM_getValue('minTextLength') || 20,   // Minimum text length
+boldRatio     = GM_getValue('boldRatio')     || 0.4,  // Bold ratio (percentage of letters per word)
+processDyn    = GM_getValue('processDyn'),            // Process dynamically loaded content (may cause performance issues)
+breadAllSites = GM_getValue('breadAllSites'),         // Apply to all sites visited, or just the ones listed in BreadNodes
+breadSites    = GM_getValue('breadSites')    || {     /* Configure sites bread will be triggered on
+	Apply to domains including "domain_part", restrict bread to a node via a "css_selector" (or false), apply custom CSS "custom_css"
+	"domain_part" : "css_selector",
+	"domain_part" : ["css_selector", "custom_css"],
+*/
+},
 
 insertTextBefore = (text, node, bold) => {
 	if (bold) {
@@ -80,27 +86,31 @@ processNode = root => {
 	}
 };
 
-window.addEventListener('load', e => {
-	let breadNode = document.body;
-	for (domain in breadNodes) {
-		if (document.location.host.includes(domain)) {
-			breadNode = document.querySelector(breadNodes[domain]);
-			break;
-		}
+GM_addStyle(`
+	span.bread {
+		display: contents !important;
+		font-weight: bolder !important;
 	}
-	if (processDyn) {
+`);
+
+let breadNode = breadAllSites != false ? 'body' : false;
+for (domain in breadSites) {
+	if (document.location.host.includes(domain)) {
+		if (Array.isArray(breadSites[domain])) {
+			GM_addStyle(breadSites[domain][1]);
+			breadSites[domain] = breadSites[domain][0];
+		}
+		breadNode = breadSites[domain] || 'body';
+		break;
+	}
+}
+
+if (breadNode) window.addEventListener('load', e => {
+	breadNode = document.querySelector(breadNode);
+	if (processDyn != false) {
 		breadNode.addEventListener('DOMNodeInserted', e => {
-			processNode(event.target);
+			processNode(e.target);
 		}, false);
 	}
 	processNode(breadNode);
 }, false);
-
-GM_addStyle(`
-
-span.bread {
-	display: contents !important;
-	font-weight: bolder;
-}
-
-`);
