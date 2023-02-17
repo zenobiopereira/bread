@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Bread
 // @match       *://*/*
-// @version     2.6.0
+// @version     2.6.1
 // @author      Toby (v1.0.5), ltGuillaume
 // @license     MIT
 // @description Bread (Bionic Reading) - Read text faster & easier
@@ -106,11 +106,13 @@ for (domain in breadSites) {
 }
 
 if (breadNode) window.addEventListener('load', e => {
-	breadNode = document.querySelector(breadNode);
+	let node = document.querySelector(breadNode);
+	if (!node)
+		return console.log('Bread: cannot find node', breadNode)
 	if (processDyn != false) {
-		breadNode.addEventListener('DOMNodeInserted', e => {
+		node.addEventListener('DOMNodeInserted', e => {
 			processNode(e.target);
 		}, false);
 	}
-	processNode(breadNode);
+	processNode(node);
 }, false);
