@@ -16,7 +16,7 @@ Key | Value | Description
 `MinTextLength` | `20` | Minimum length of a paragraph to be "bionified"
 `BoldRatio` | `.4` | Percentage of letters in each word that will be bolded
 `ProcessDyn` | `True` | Whether to process dynamically loaded content
-`BreadNodes` | `{}` | Restrict bread to a specific node per domain (use a CSS query): `{"domain": "#css_selector", ...}`
+`BreadNodes` | `{}` | Restrict bread to a specific node per domain (use a CSS query):<br>`{ "domain_part" : "css_selector", "domain_part" : ["css_selector", "custom_css"] }`
 
 You can change these values in your userscript manager.
 
