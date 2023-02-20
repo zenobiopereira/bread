@@ -1,3 +1,5 @@
+<img width="128" src="BREAD.png" align="right">
+
 # Bread
 by tobyxdd, modified by ltGuillaume: [Codeberg](https://codeberg.org/ltGuillaume) | [GitHub](https://github.com/ltGuillaume) | [Buy me a beer](https://buymeacoff.ee/ltGuillaume) 🍺
 
@@ -23,3 +25,4 @@ You can change these values in your userscript manager.
 ## Credits
 - Renato Casutt for the [Bionic Reading](https://bionic-reading.com) method
 - [tobyxdd](https://github.com/tobyxdd) for his implementation of Bionic Reading ([get it on OpenUserJS](https://openuserjs.org/scripts/tobyxdd/Bread))
+- [Bionic Eye](https://www.flaticon.com/free-icon/bionic-eye_9485741) icon by [Freepik](https://www.flaticon.com/authors/freepik)
