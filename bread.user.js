@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Bread
 // @match       *://*/*
-// @version     2.6.1
+// @version     2.7.0
 // @author      Toby (v1.0.5), ltGuillaume
 // @license     MIT
 // @description Bread (Bionic Reading) - Read text faster & easier
@@ -108,11 +108,16 @@ for (domain in breadSites) {
 if (breadNode) window.addEventListener('load', e => {
 	let node = document.querySelector(breadNode);
 	if (!node)
-		return console.log('Bread: cannot find node', breadNode)
+		return console.log('Bread: cannot find node', breadNode);
 	if (processDyn != false) {
-		node.addEventListener('DOMNodeInserted', e => {
-			processNode(e.target);
-		}, false);
+		const observer = new MutationObserver(
+			mutations => mutations.forEach(
+				mutation => mutation.addedNodes.forEach(
+					addedNode => processNode(addedNode)
+				)
+			)
+		);
+		observer.observe(node, { subtree: true, childList: true });
 	}
 	processNode(node);
 }, false);
