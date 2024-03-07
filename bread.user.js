@@ -50,6 +50,10 @@ processNode = root => {
 			 (node.parentNode.nodeName === 'A' ||
 				node.parentNode.nodeName === 'EM' ||
 				node.parentNode.nodeName === 'STRONG' ||
+                /* For non semantic HTML */
+                node.parentNode.nodeName === 'DIV' ||
+                node.parentNode.nodeName === 'SPAN' ||
+                /* --- */
 				node.nodeValue.length	 >= minTextLength)) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
 		}
 	});
@@ -88,8 +92,10 @@ processNode = root => {
 
 GM_addStyle(`
 	span.bread {
-		display: contents !important;
-		font-weight: bolder !important;
+        display: contents !important;
+        font-weight: bolder !important;
+        /*   To make change visible when font is smaller   */
+        text-shadow: 0 0 0 !important;
 	}
 `);
 
