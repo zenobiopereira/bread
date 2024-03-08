@@ -7,13 +7,17 @@
 // @description Bread (Bionic Reading) - Read text faster & easier
 // @grant       GM_addStyle
 // @grant       GM_getValue
+// @grant       GM_setValue
 // @run-at      document-start
+// @require https://cdn.jsdelivr.net/npm/@violentmonkey/shortcut@1
 // ==/UserScript==
 
 /* source: https://github.com/tobyxdd/bread (v1.0.5) */
 /* jshint esversion: 6 */
 
 let
+disabled      = GM_getValue('disabled')      || false,// Disable script
+keybind       = GM_getValue('keybind')       || 'c-r',// Keybind to trigger the script. Based on: https://violentmonkey.github.io/vm-shortcut/
 minWordLength = GM_getValue('minWordLength') || 4,    // Minimum word length
 minTextLength = GM_getValue('minTextLength') || 20,   // Minimum text length
 boldRatio     = GM_getValue('boldRatio')     || 0.4,  // Bold ratio (percentage of letters per word)
@@ -25,6 +29,7 @@ breadSites    = GM_getValue('breadSites')    || {     /* Configure sites bread w
 	"domain_part" : ["css_selector", "custom_css"],
 */
 },
+
 
 insertTextBefore = (text, node, bold) => {
 	if (bold) {
@@ -99,6 +104,11 @@ GM_addStyle(`
 	}
 `);
 
+VM.shortcut.register(keybind, () => {
+	GM_setValue('disabled', !disabled);
+	return window.location.reload();
+});
+
 let breadNode = breadAllSites != false ? 'body' : false;
 for (domain in breadSites) {
 	if (document.location.host.includes(domain)) {
@@ -111,7 +121,7 @@ for (domain in breadSites) {
 	}
 }
 
-if (breadNode) window.addEventListener('load', e => {
+if (breadNode && disabled) window.addEventListener('load', e => {
 	let node = document.querySelector(breadNode);
 	if (!node)
 		return console.log('Bread: cannot find node', breadNode);

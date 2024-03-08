@@ -20,6 +20,8 @@ Key | Value | Description
 `processDyn` | `True` | Whether to process dynamically loaded content
 `breadAllSites` | `True` | Whether to apply to all sites visited, or just the ones listed in breadSites
 `breadSites` | `{}` | Restrict bread to a specific node per domain (use a CSS query, or `False` for default `body` node), and optionally inject custom CSS:<br>`{ "domain_part" : "css_selector", "domain_part" : ["css_selector", "custom_css"] }`
+`disabled` | `false` | Disable script
+`keybind` | `c-r` | Keybind to trigger the script. Based on: https://violentmonkey.github.io/vm-shortcut/
 
 You can change these values in your userscript manager.
 
